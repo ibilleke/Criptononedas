@@ -22,17 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
     monedaSelect.addEventListener('change', leerValor);
 })
 
-async function consultarCriptomonedas() {
+function consultarCriptomonedas() {
     const url = 'https://min-api.cryptocompare.com/data/top/totaltoptiervolfull?limit=20&tsym=USD';
 
-    try {
-        const respuesta = await fetch(url);
-        const resultado = await respuesta.json();
-        const criptomonedas = await obtenerCriptomonedas(resultado.Data)
-        selectCriptomonedas(criptomonedas);
-    } catch (error) {
-        console.log(error);
-    }
+    fetch(url)
+        .then( respuesta => respuesta.json() )
+        .then( resultado => obtenerCriptomonedas(resultado.Data) )
+        .then( criptomonedas => selectCriptomonedas(criptomonedas) )
 }
 
 function selectCriptomonedas(criptomonedas) {
@@ -63,7 +59,6 @@ function submitFormulario(e) {
     }
 
     consultarAPI();
-
 }
 
 function mostrarAlerta(msg) {
@@ -84,20 +79,18 @@ function mostrarAlerta(msg) {
     }
 }
 
-async function consultarAPI() {
+function consultarAPI() {
     const { moneda, criptomoneda } = objBusqueda;
 
     const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoneda}&tsyms=${moneda}`;
 
     mostrarSpinner();
 
-    try {
-        const respuesta = await fetch(url);
-        const cotizacion = await respuesta.json();
-        mostrarCotizacionHTML(cotizacion.DISPLAY[criptomoneda][moneda]);
-    } catch (error) {
-        console.log(error);
-    }
+    fetch(url)
+        .then( respuesta => respuesta.json())
+        .then( cotizacion => {
+            mostrarCotizacionHTML(cotizacion.DISPLAY[criptomoneda][moneda])
+        })
 }
 
 function mostrarCotizacionHTML(cotizacion) {
@@ -129,12 +122,6 @@ function mostrarCotizacionHTML(cotizacion) {
     resultado.appendChild(ultimaActualizacion);
 }
 
-function limpiarHTML() {
-    while(resultado.fristChild) {
-        resultado.removeChild(resultado.fristChild);
-    }
-}
-
 function mostrarSpinner() {
 
     limpiarHTML();
@@ -153,4 +140,10 @@ function mostrarSpinner() {
     setTimeout(() => {
         spinner.remove();
     }, 3000);
+}
+
+function limpiarHTML() {
+    while(resultado.firstChild) {
+        resultado.removeChild(resultado.firstChild);
+    }
 }
